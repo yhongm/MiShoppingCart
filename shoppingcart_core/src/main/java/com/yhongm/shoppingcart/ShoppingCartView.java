@@ -21,24 +21,23 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
-import android.widget.LinearLayout;
 
 /**
  * Created by yuhongmiao on 2017/6/7.
  */
 
-public class ShoppingCartViewGroup extends ViewGroup implements ShoppingCartView.OnClickButton {
-    private ShoppingCartView shoppingCartView;
+public class ShoppingCartView extends ViewGroup implements ShoppingCartMainView.OnClickButton {
+    private ShoppingCartMainView shoppingCartView;
     private ShoppingCartListener shoppingCartListener;
     private Bitmap mProductBitmap;
 
-    public ShoppingCartViewGroup(Context context) {
+    public ShoppingCartView(Context context) {
         this(context, null);
     }
 
-    public ShoppingCartViewGroup(Context context, AttributeSet attrs) {
+    public ShoppingCartView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        ShoppingCartView scv = new ShoppingCartView(context);
+        ShoppingCartMainView scv = new ShoppingCartMainView(context);
         addMainView(scv);
     }
 
@@ -46,7 +45,7 @@ public class ShoppingCartViewGroup extends ViewGroup implements ShoppingCartView
     public void addMainView(View child) {
         ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         addView(child, layoutParams);
-        shoppingCartView = (ShoppingCartView) getChildAt(0);
+        shoppingCartView = (ShoppingCartMainView) getChildAt(0);
         shoppingCartView.setListener(this);
         requestLayout();
     }
@@ -78,7 +77,7 @@ public class ShoppingCartViewGroup extends ViewGroup implements ShoppingCartView
         if (shoppingCartListener != null) {
             shoppingCartListener.add(mProductTotal);
         }
-        ShoppingAnimView shoppingAnimView = new ShoppingAnimView(getContext());
+        ShoppingAnimChildView shoppingAnimView = new ShoppingAnimChildView(getContext());
         if (mProductBitmap != null) {
             shoppingAnimView.setProductBitmap(mProductBitmap);
         }
@@ -99,6 +98,10 @@ public class ShoppingCartViewGroup extends ViewGroup implements ShoppingCartView
 
     }
 
+    /**
+     * 设置产品产品
+     * @param listener
+     */
     public void setShoppingCartListener(ShoppingCartListener listener) {
         this.shoppingCartListener = listener;
     }
@@ -119,7 +122,7 @@ public class ShoppingCartViewGroup extends ViewGroup implements ShoppingCartView
     }
 }
 
-class ShoppingAnimView extends View {
+class ShoppingAnimChildView extends View {
     private int measuredWidth;
     private int measuredHeight;
     private Bitmap bitmap;
@@ -134,11 +137,11 @@ class ShoppingAnimView extends View {
     private Paint mBitmapPaint;
     private Paint mLovePaint;
 
-    public ShoppingAnimView(Context context) {
+    public ShoppingAnimChildView(Context context) {
         this(context, null);
     }
 
-    public ShoppingAnimView(Context context, @Nullable AttributeSet attrs) {
+    public ShoppingAnimChildView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         ints = new int[100];
         for (int i = 0; i < 100; i++) {
@@ -154,6 +157,9 @@ class ShoppingAnimView extends View {
         mBitmapPaint.setAlpha(0);
     }
 
+    /**
+     * 改变数值实现动画
+     */
     private void initAnimator() {
         valueAnimator = ValueAnimator.ofInt(ints);
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -189,13 +195,15 @@ class ShoppingAnimView extends View {
 
     }
 
+    /**
+     * 开始动画
+     */
     public void startAnim() {
         valueAnimator.start();
     }
 
     private void initBitmap() {
-
-        bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.mi6);
+        bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round);
         bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
         newBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), new Matrix(), false);
         currentBitmapWidth = bitmapWidth = bitmap.getWidth();
@@ -203,6 +211,12 @@ class ShoppingAnimView extends View {
 
     }
 
+    /**
+     * 缩放bitmap
+     * @param bitmap
+     * @param scale
+     * @return
+     */
     public Bitmap scaleBitmap(Bitmap bitmap, float scale) {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
@@ -256,7 +270,10 @@ class ShoppingAnimView extends View {
 
     }
 
-
+    /**
+     * 设置产品图片
+     * @param mProductBitmap
+     */
     public void setProductBitmap(Bitmap mProductBitmap) {
         bitmap = mProductBitmap;
         bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
@@ -266,7 +283,7 @@ class ShoppingAnimView extends View {
     }
 }
 
-class ShoppingCartView extends View {
+class ShoppingCartMainView extends View {
     private int mMeasuredWidth;
     private int mMeasuredHeight;
 
@@ -283,11 +300,11 @@ class ShoppingCartView extends View {
     private Paint mLovePaint;
     private Paint mShoppingCartPaint;
 
-    public ShoppingCartView(Context context) {
+    public ShoppingCartMainView(Context context) {
         this(context, null);
     }
 
-    public ShoppingCartView(Context context, @Nullable AttributeSet attrs) {
+    public ShoppingCartMainView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         setClickable(true);
         initPaint();
@@ -442,7 +459,7 @@ class ShoppingCartView extends View {
     }
 
     /**
-     * 画心
+     * 绘制喜欢
      *
      * @param canvas
      * @param x
@@ -478,6 +495,12 @@ class ShoppingCartView extends View {
         canvas.drawText("喜欢", x - measureText / 2, y + 50, mTextPaint);
     }
 
+    /**
+     * 绘制购物车
+     * @param canvas
+     * @param x
+     * @param y
+     */
     private void drawShoppingCart(Canvas canvas, float x, float y) {
         canvas.save();
         canvas.translate(x, y);
